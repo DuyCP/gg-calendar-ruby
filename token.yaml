@@ -1,0 +1,78 @@
+--- !ruby/object:Google::Auth::UserRefreshCredentials
+project_id:
+quota_project_id:
+authorization_uri: !ruby/object:Addressable::URI
+  scheme: https
+  user:
+  uri_string: https://accounts.google.com/o/oauth2/auth
+  hash:
+  userinfo:
+  authority: accounts.google.com
+  password:
+  normalized_authority:
+  port:
+  host: accounts.google.com
+  normalized_host:
+  path: "/o/oauth2/auth"
+  normalized_path:
+  fragment:
+  query:
+  validation_deferred: false
+token_credential_uri: !ruby/object:Addressable::URI
+  scheme: https
+  user:
+  uri_string: https://oauth2.googleapis.com/token
+  hash:
+  userinfo:
+  authority: oauth2.googleapis.com
+  password:
+  normalized_authority:
+  port:
+  host: oauth2.googleapis.com
+  normalized_host:
+  path: "/token"
+  normalized_path:
+  fragment:
+  query:
+  validation_deferred: false
+client_id: 559995491604-qeft742bn25l1bbcmf26rhohvpupp1cb.apps.googleusercontent.com
+client_secret: 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
+code:
+expires_at: 2024-01-09 19:04:55.201030000 +07:00
+issued_at: 2024-01-09 18:04:56.201030000 +07:00
+issuer:
+password:
+principal:
+redirect_uri: !ruby/object:Addressable::URI
+  scheme: urn
+  user:
+  uri_string: urn:ietf:wg:oauth:2.0:oob
+  hash:
+  userinfo:
+  authority:
+  password:
+  normalized_authority:
+  port:
+  host:
+  normalized_host:
+  path: ietf:wg:oauth:2.0:oob
+  normalized_path:
+  fragment:
+  query:
+  validation_deferred: false
+scope:
+- https://www.googleapis.com/auth/calendar
+target_audience:
+state:
+username:
+access_type: :offline
+granted_scopes:
+- https://www.googleapis.com/auth/calendar
+expiry: 60
+extension_parameters: {}
+additional_parameters: {}
+grant_type:
+access_token: ya29.a0AfB_byDPaxBeRtIy_78UnUsRvsdIUNUKOU-I4UpetN6TW808G5Ggq2ZAioGAa-r4O9XVEUkOYpX2CX4CGvhBj2Vl3NyiQFdEiyhgPNXnFEI7OBuEK1ay4852GZGI_U9TnBLHJBWVDl01IvmIh3Pu7Bw3s5ly0XazX9aUaCgYKAVwSARASFQHGX2MilQGQ3VjoiY8yQY0SXAhrPQ0171
+refresh_token: 1//0eUcp65lQFJbsCgYIARAAGA4SNwF-L9Ir0zwK7Lbv_OLKszoZ8PzW96QmDQKl8czSvNpxd5anx-dJ8q4eoFVt3k1g3wlUTwh8DC0
+refresh_listeners:
+- !ruby/object:Proc {}
