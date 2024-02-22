@@ -24,15 +24,15 @@ end
 CLIENT_SECRETS_PATH = './client_secrets.json'
 CREDENTIALS_PATH = './token.yaml'
 
-from_email = 'txd22081999@gmail.com'
-from_email_password = 'kxtu mipe owot gmxb'
-to_email = 'duy@coderpush.com'
+$from_email = 'txd22081999@gmail.com'
+$from_email_password = 'kxtu mipe owot gmxb'
+$to_email = 'duy@coderpush.com'
 
 options = { :address              => "smtp.gmail.com",
             :port                 => 587,
             :domain               => 'localhost', # Replace with your domain
-            :user_name            => from_email, # Replace with your Gmail address
-            :password             => from_email_password, # Replace with your Gmail password
+            :user_name            => $from_email, # Replace with your Gmail address
+            :password             => $from_email_password, # Replace with your Gmail password
             :authentication       => 'plain',
             :enable_starttls_auto => true }
 
@@ -41,10 +41,10 @@ Mail.defaults do
 end
 
 # Send the email
-def send_email(from_email, to_email, subject, body)
+def send_email(subject, body)
   mail = Mail.new do
-    from     from_email
-    to       to_email
+    from     $from_email
+    to       $to_email
     subject   'Hello from gg-calendar-ruby'
     body     body
   end
@@ -121,7 +121,7 @@ def format_email_body(paragraph)
   return formatted_body
 end
 
-def list_events(service)
+def handle_events(service)
   calendar_id = 'primary'
   start_time = Time.now.beginning_of_month.iso8601
   end_time = Time.now.end_of_month.iso8601
@@ -179,20 +179,16 @@ def list_events(service)
 
   month_name = Time.now.strftime("%B") # Get the full month name
   puts "\nSummary of events in #{month_name}:"
-  format_events_summary(events_summary)
 
-  # filtered_events_summary.each do |event_name, info|
-  #   info[:attendees].each do |attendee|
-  #     if coderpusher_emails.includes(attendee)
-  #       subscribed_list.push(attendee)
-  #     else
-  #       unsubscribed_list.push(attendee)
-  #     end
-      
-    # count_str = "- #{event_name}: #{info[:count]} times"
-    # participant_str = "  Participants: #{info[:attendees].join(', ')}"
-    # puts count_str
-    # puts participant_str
+  output_str = format_events_summary(events_summary)
+  puts "- output_str"
+  puts output_str
+  puts "----- output_str"
+  puts format_email_body(output_str)
+  subject = "Summary of 1-1 meetings"
+  body = output_str
+  send_email(subject, body)
+
   end
 
 
@@ -307,8 +303,12 @@ def list_events(service)
 
 
     all_people_mails = coderpusher_emails
+
+    content = ''
     
-    puts "# | Manager               | Scheduled                | Unscheduled"
+    header_str = "# | Manager               | Scheduled                | Unscheduled\n"
+    content += header_str
+    # puts "# | Manager               | Scheduled                | Unscheduled"
     # Iterate over each event in filtered_events_summary and track the index
     filtered_events_summary.each_with_index do |(event_name, occurrences), index|
       # Initialize variables to store manager and scheduled attendees
@@ -335,8 +335,12 @@ def list_events(service)
       unscheduled_attendees = all_people_mails - [manager_email] - scheduled_attendees
 
       # Print the table row
-      puts "#{index + 1} | #{manager_email.ljust(21)} | #{scheduled_attendees.join(', ').ljust(25)} | #{unscheduled_attendees.join(', ').ljust(25)} |"
+      row_str = "#{index + 1} | #{manager_email.ljust(21)} | #{scheduled_attendees.join(', ').ljust(25)} | #{unscheduled_attendees.join(', ').ljust(25)} |\n"
+      # puts row_str
+      content += row_str
     end
+
+    return content
   end
 
 
@@ -376,10 +380,8 @@ def list_events(service)
     puts "here"
     puts filtered_events_summary
 
-    convert_to_table_summary(filtered_events_summary)
+    return convert_to_table_summary(filtered_events_summary)
   end
-
-
 end
 
 
@@ -394,7 +396,7 @@ end
 
 begin
   service = authorize_and_load_client
-  list_events(service)
+  handle_events(service)
 rescue Google::Apis::ClientError => e
   puts "Error: #{e}"
 end
