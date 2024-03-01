@@ -7,6 +7,7 @@ require 'active_support/all'
 require 'set'
 require 'mail'
 require 'set'
+require 'terminal-table'
 
 
 
@@ -122,115 +123,89 @@ def format_email_body(paragraph)
 end
 
 def handle_events(service)
-  calendar_id = 'primary'
-  start_time = Time.now.beginning_of_month.iso8601
-  end_time = Time.now.end_of_month.iso8601
+  # calendar_id = 'primary'
+  # start_time = Time.now.beginning_of_month.iso8601
+  # end_time = Time.now.end_of_month.iso8601
 
-  response = service.list_events(calendar_id,
-                                 max_results: 1000,
-                                 single_events: true,
-                                 order_by: 'startTime',
-                                 time_min: start_time,
-                                 time_max: end_time,
-                                 fields: 'items(summary,attendees)') # Request only summary and attendees fields
-  event_str = 'Events in the current month:'
-  no_event_str = 'No upcoming events found'
-  puts event_str
-  puts no_event_str if response.items.empty?
+  # response = service.list_events(calendar_id,
+  #                                max_results: 1000,
+  #                                single_events: true,
+  #                                order_by: 'startTime',
+  #                                time_min: start_time,
+  #                                time_max: end_time,
+  #                                fields: 'items(summary,attendees)') # Request only summary and attendees fields
+  # event_str = 'Events in the current month:'
+  # no_event_str = 'No upcoming events found'
+  # puts event_str
+  # puts no_event_str if response.items.empty?
 
-  puts "- response"
-  puts response
-
-  events_summary = Hash.new { |hash, key| hash[key] = [] }
-  puts "- events_summary"
-  puts events_summary
+  # events_summary = Hash.new { |hash, key| hash[key] = [] }
+  # puts "- events_summary"
+  # puts events_summary
 
   # response.items.each do |event|
   #   summary = event.summary
   #   attendees = event.attendees || []
-
-  #   puts "- #{summary}"
-
-  #   # Summarize by event name and list participants
-  #   events_summary[summary][:count] += 1
-  #   events_summary[summary][:attendees] |= attendees.map { |attendee| attendee.email.to_s } unless attendees.empty?
+  
+  #   # Add each event summary as an object to the array under the summary key
+  #   events_summary[summary] << { count: 1, attendees: attendees.map { |attendee| attendee.email.to_s } }
   # end
-
-  response.items.each do |event|
-    summary = event.summary
-    attendees = event.attendees || []
-  
-    puts "- #{summary}"
-  
-    # Add each event summary as an object to the array under the summary key
-    events_summary[summary] << { count: 1, attendees: attendees.map { |attendee| attendee.email.to_s } }
-  end
   
 
-  puts " - AFTER: events_summary"
-  puts events_summary
-
-  puts "🚀 ~ events_summary: #{events_summary}"
-  # filtered_events_summary = events_summary.select { |event_name, info| event_name.include?("1-1") }
-  # puts filtered_events_summary
-
-  subscribed_list = []
-  unsubscribed_list = []
+  # puts "🚀 ~ events_summary: #{events_summary}"
 
   month_name = Time.now.strftime("%B") # Get the full month name
   puts "\nSummary of events in #{month_name}:"
 
-  output_str = format_events_summary(events_summary)
-  puts "- output_str"
-  puts output_str
-  puts "----- output_str"
-  puts format_email_body(output_str)
-  subject = "Summary of 1-1 meetings"
-  body = output_str
-  send_email(subject, body)
-
-  end
-
 
   sample_events_summary = {
-    "Mystorage - Daily meeting" => [
+    "Mystorage - Daily meeting" => 
       {
         :count => 10,
         :attendees => Set.new(["thien.kieu@coderpush.com", "ruby@coderpush.com", "duy@coderpush.com"])
-      }
-    ],
-    "Dux-soup - Daily Sync" => [{
+      },
+    "Dux-soup - Daily Sync" => {
       :count => 21,
       :attendees => Set.new(["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"])
-    }],
-    "🎙 Open Discussion: E-sports Tournament 2024" => [{
+    },
+    "🎙 Open Discussion: E-sports Tournament 2024" => {
       :count => 1,
       :attendees => Set.new(["hieu.pham@coderpush.com", "nhat@coderpush.com", "cong@coderpush.com", "du@coderpush.com", "vu@coderpush.com", "coral@coderpush.com", "vi@coderpush.com", "dieuhuyen@coderpush.com", "bsu@coderpush.com", "nhatanh@coderpush.com", "leo@coderpush.com", "hoangminh@coderpush.com", "quang@coderpush.com", "thinh@coderpush.com", "khanh@coderpush.com", "truong@coderpush.com", "son@coderpush.com", "trang@coderpush.com", "ruby@coderpush.com", "james@coderpush.com", "ha.nguyen@coderpush.com", "thanh@coderpush.com", "vinh.duong@coderpush.com", "hien@coderpush.com", "phong@coderpush.com", "nghia.huynh@coderpush.com", "john@coderpush.com", "sieu@coderpush.com", "huy.le@coderpush.com", "phi@coderpush.com", "thong.dang@coderpush.com", "nam@coderpush.com", "thuhien@coderpush.com", "diep@coderpush.com", "cuong@coderpush.com", "vanhung@coderpush.com", "anh@coderpush.com", "viet@coderpush.com", "chau@coderpush.com", "caochau@coderpush.com", "uyen@coderpush.com", "loan@coderpush.com", "quy.nguyen@coderpush.com", "kimlong@coderpush.com", "min@coderpush.com", "dao.mai@coderpush.com", "dat.nguyen@coderpush.com", "ha.pham@coderpush.com", "thientran@coderpush.com", "minhhung@coderpush.com", "thien.kieu@coderpush.com", "tron@coderpush.com", "vinh.tran@coderpush.com", "diem@coderpush.com", "huyen@coderpush.com", "harley@coderpush.com", "thien.huynh@coderpush.com", "kelly@coderpush.com", "hung.dang@coderpush.com", "oai@coderpush.com", "long@coderpush.com", "duy@coderpush.com", "ngan@coderpush.com", "nhi@coderpush.com", "tri.nguyen@coderpush.com", "long.truong@coderpush.com", "si@coderpush.com", "anne@coderpush.com", "hanna@coderpush.com", "hugh@coderpush.com", "thanh.le@coderpush.com"])
-    }],
-    "Duy x Leo 1-1" => [{
+    },
+    "Duy x Leo 1-1" => {
       :count => 1,
       :attendees => Set.new(["duy@coderpush.com", "leo@coderpush.com"])
     },
-    {
+    "Elise x Leo 1-1" => {
       :count => 1,
-      :attendees => Set.new(["johndoe@coderpush.com", "leo@coderpush.com"])
-    }],
-    "1-1 Duy/ThienK" => [
+      :attendees => Set.new(["elise@coderpush.com", "leo@coderpush.com"])
+    },
+    "1-1 Duy/ThienK" => 
       {
         :count => 1,
         :attendees => Set.new(["duy@coderpush.com", "thien.kieu@coderpush.com"])
       },
-      {
-        :count => 1,
-        :attendees => Set.new(["elise@coderpush.com", "thien.kieu@coderpush.com"])
-      },
-      {
-        :count => 1,
-        :attendees => Set.new(["sam@coderpush.com", "thien.kieu@coderpush.com"])
-      }
-    ],
-    
+    "1-1 JohnDoe/ThienK" => 
+    {
+      :count => 1,
+      :attendees => Set.new(["johndoe@coderpush.com", "thien.kieu@coderpush.com"])
+    },
   }
+
+
+  
+  output_str = format_events_summary(sample_events_summary)
+  # puts "- output_str"
+  # puts output_str
+  # puts "----- output_str"
+  # puts format_email_body(output_str)
+  # subject = "Summary of 1-1 meetings"
+  # body = output_str
+  # send_email(subject, body)
+
+  end
+
+
 
   def convert_to_table_summary(filtered_events_summary)
     # Create a header for the table
@@ -301,48 +276,101 @@ def handle_events(service)
       "si@coderpush.com",
     ]
 
+    manager_email = ["thien.kieu@coderpush.com", "leo@coderpush.com"]
 
-    all_people_mails = coderpusher_emails
 
-    content = ''
-    
-    header_str = "# | Manager               | Scheduled                | Unscheduled\n"
-    content += header_str
-    # puts "# | Manager               | Scheduled                | Unscheduled"
-    # Iterate over each event in filtered_events_summary and track the index
-    filtered_events_summary.each_with_index do |(event_name, occurrences), index|
-      # Initialize variables to store manager and scheduled attendees
-      manager_email = ""
-      scheduled_attendees = []
-      unscheduled_attendees = []
+    events_with_managers_participants = []
 
-      # Iterate over each occurrence of the event
-      occurrences.each do |occurrence|
-        # Check if the occurrence has a manager field
-        if occurrence.key?(:manager)
-          # Set the manager's email
-          manager_email = occurrence[:manager]
-        end
-
-        # Add attendees to the scheduled attendees list, excluding the manager
-        scheduled_attendees.concat(occurrence[:attendees].reject { |attendee| attendee == manager_email })
-      end
-
-      # Remove duplicates from the scheduled attendees list
-      scheduled_attendees.uniq!
+    # Iterate through the events and their attendees
+    filtered_events_summary.each do |event_name, event_data|
+      # Select only the manager emails from the attendees of the event
+      managers = event_data[:attendees].select { |email| manager_email.include?(email) }
+      # Get the list of participants by removing manager emails from the attendees
+      participants = event_data[:attendees].reject { |email| manager_email.include?(email) }
       
-      # Get unscheduled attendees
-      unscheduled_attendees = all_people_mails - [manager_email] - scheduled_attendees
-
-      # Print the table row
-      row_str = "#{index + 1} | #{manager_email.ljust(21)} | #{scheduled_attendees.join(', ').ljust(25)} | #{unscheduled_attendees.join(', ').ljust(25)} |\n"
-      # puts row_str
-      content += row_str
+      # Create an object containing manager and participants for the event
+      event_object = { "manager" => managers.join(", "), "participants" => participants.to_a }
+      
+      # Add the event object to the array
+      events_with_managers_participants << event_object
     end
 
-    return content
+    puts "events_with_managers_participants"
+    puts events_with_managers_participants.inspect
+
+
+    participants_grouped_by_manager = Hash.new { |hash, key| hash[key] = [] }
+
+    # Iterate through each event object
+    events_with_managers_participants.each do |event|
+      # Extract manager and participants from the event object
+      manager = event["manager"]
+      participants = event["participants"]
+      
+      # Add participants to the group based on the manager
+      participants_grouped_by_manager[manager] += participants
+    end
+
+    puts "participants_grouped_by_manager"
+    puts participants_grouped_by_manager.inspect
+  
+    # Initialize an empty array to store the objects
+    manager_employee_objects = []
+
+    # Iterate through the hash and create objects
+    participants_grouped_by_manager.each do |manager, participants|
+      # Create an object with manager and employees
+      manager_employee_object = {
+        "manager" => manager,
+        "scheduled" => participants
+      }
+      # Add the object to the array
+      manager_employee_objects << manager_employee_object
+    end
+
+    puts "manager_employee_objects"
+    puts manager_employee_objects.inspect
+
+
+    # Initialize an empty array to store the objects
+    manager_scheduled_objects_with_unscheduled = []
+
+    # Iterate through the hash and create objects
+    participants_grouped_by_manager.each do |manager, participants|
+      # Find unscheduled emails
+      unscheduled_emails = coderpusher_emails - participants - [manager]
+      
+      # Create an object with manager, scheduled, and unscheduled
+      manager_scheduled_object = {
+        "manager" => manager,
+        "scheduled" => participants,
+        "unscheduled" => unscheduled_emails
+      }
+      
+      # Add the object to the array
+      manager_scheduled_objects_with_unscheduled << manager_scheduled_object
+    end
+
+    puts manager_scheduled_objects_with_unscheduled.inspect
+
+    table_str = convert_to_table(manager_scheduled_objects_with_unscheduled)
+    puts "table_str"
+    puts table_str
+
+    subject = "Summary of 1-1 meetings"
+    body = table_str
+    send_email(subject, body)
   end
 
+  def convert_to_table(array)
+    rows = array.map do |item|
+      [item["manager"], item["scheduled"].join(", "), item["unscheduled"].join(", ")]
+    end
+  
+    table = Terminal::Table.new :headings => ['Manager', 'Scheduled', 'Unscheduled'], :rows => rows
+  
+    table.to_s
+  end
 
   def format_events_summary(events_summary)
     puts "events_summary"
@@ -351,38 +379,8 @@ def handle_events(service)
     puts "filtered_events_summary"
     puts filtered_events_summary
 
-    # Initialize an empty hash to store the most common email for each event
-    most_common_emails = {}
-
-    # Iterate over each event in filtered_events_summary
-    filtered_events_summary.each do |event_name, occurrences|
-      # Initialize an empty hash to store the count of attendees' emails for the current event
-      email_count = Hash.new(0)
-
-      # Iterate over each occurrence of the event
-      occurrences.each do |occurrence|
-        # Iterate over each attendee in the occurrence
-        occurrence[:attendees].each do |email|
-          # Increment the count of the attendee's email
-          email_count[email] += 1
-        end
-      end
-
-      # Find the email with the highest count (the most occurrences) for the current event
-      most_common_email = email_count.max_by { |email, count| count }.first
-      
-      occurrences.each do |occurrence|
-        occurrence[:manager] = most_common_email
-    end
-
-    # Assign the most common email for the current event to the most_common_emails hash
-    most_common_emails[event_name] = most_common_email
-    puts "here"
-    puts filtered_events_summary
-
     return convert_to_table_summary(filtered_events_summary)
   end
-end
 
 
 
@@ -395,8 +393,9 @@ end
 # end
 
 begin
-  service = authorize_and_load_client
-  handle_events(service)
+  # service = authorize_and_load_client
+  # handle_events(service)
+  handle_events(nil)
 rescue Google::Apis::ClientError => e
   puts "Error: #{e}"
 end
@@ -416,3 +415,8 @@ end
 ## Proton mail:
 ## cp_mailbot@proton.me
 ## 12345678
+
+
+# write a function name "convert_to_table_summary", requirement:
+# - output an object with 3 properties:  manager, scheduled, unscheduled
+# "manager" is filter from "attendees" of an event, and this email must appear in "manager_email"
