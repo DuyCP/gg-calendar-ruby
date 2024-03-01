@@ -7,7 +7,7 @@ require 'active_support/all'
 require 'set'
 require 'mail'
 require 'set'
-require 'terminal-table'
+require 'text-table'
 
 
 
@@ -353,7 +353,7 @@ def handle_events(service)
 
     puts manager_scheduled_objects_with_unscheduled.inspect
 
-    table_str = convert_to_table(manager_scheduled_objects_with_unscheduled)
+    table_str = convert_to_table(manager_scheduled_objects_with_unscheduled, 120)
     puts "table_str"
     puts table_str
 
@@ -362,15 +362,43 @@ def handle_events(service)
     send_email(subject, body)
   end
 
-  def convert_to_table(array)
-    rows = array.map do |item|
-      [item["manager"], item["scheduled"].join(", "), item["unscheduled"].join(", ")]
+ 
+  def convert_to_table(array, max_width)
+    # Function to pad a string to a given length
+    pad_string = ->(str, length) { str.ljust(length) }
+  
+    # Calculate max content length for each column
+    max_lengths = array.reduce({"Manager" => 0, "Scheduled" => 0, "Unscheduled" => 0}) do |max_lengths, item|
+      max_lengths["Manager"] = [max_lengths["Manager"], item["manager"].length].max
+      max_lengths["Scheduled"] = [max_lengths["Scheduled"], item["scheduled"].join(", ").length].max
+      max_lengths["Unscheduled"] = [max_lengths["Unscheduled"], item["unscheduled"].join(", ").length].max
+      max_lengths
     end
   
-    table = Terminal::Table.new :headings => ['Manager', 'Scheduled', 'Unscheduled'], :rows => rows
+    # Adjust column widths based on max lengths and max table width
+    total_width = max_lengths.values.sum + 10  # Add padding and separator widths
+    width_ratio = max_width.to_f / total_width
+    column_widths = max_lengths.transform_values { |length| (length * width_ratio).to_i }
   
-    table.to_s
+    # Generate table header
+    header = "| #{pad_string.call('Manager', column_widths["Manager"])} | #{pad_string.call('Scheduled', column_widths["Scheduled"])} | #{pad_string.call('Unscheduled', column_widths["Unscheduled"])} |"
+  
+    # Generate separator line
+    separator = "+-#{'-' * column_widths["Manager"]}-+-#{'-' * column_widths["Scheduled"]}-+-#{'-' * column_widths["Unscheduled"]}-+"
+  
+    # Generate table rows
+    rows = array.map do |item|
+      "| #{pad_string.call(item["manager"], column_widths["Manager"])} | #{pad_string.call(item["scheduled"].join(", "), column_widths["Scheduled"])} | #{pad_string.call(item["unscheduled"].join(", "), column_widths["Unscheduled"])} |"
+    end
+  
+    # Construct the final table string
+    table_string = [separator, header, separator, rows.join("\n"), separator].join("\n")
+  
+    table_string
   end
+
+
+
 
   def format_events_summary(events_summary)
     puts "events_summary"
