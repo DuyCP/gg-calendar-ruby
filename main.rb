@@ -10,8 +10,6 @@ require 'set'
 require 'text-table'
 
 
-
-
 def merge_sets(*sets)
   merged_array = []
   sets.each do |set|
@@ -123,82 +121,48 @@ def format_email_body(paragraph)
 end
 
 def handle_events(service)
-  # calendar_id = 'primary'
-  # start_time = Time.now.beginning_of_month.iso8601
-  # end_time = Time.now.end_of_month.iso8601
+  calendar_id = 'primary'
+  start_time = Time.now.beginning_of_month.iso8601
+  end_time = Time.now.end_of_month.iso8601
 
-  # response = service.list_events(calendar_id,
-  #                                max_results: 1000,
-  #                                single_events: true,
-  #                                order_by: 'startTime',
-  #                                time_min: start_time,
-  #                                time_max: end_time,
-  #                                fields: 'items(summary,attendees)') # Request only summary and attendees fields
-  # event_str = 'Events in the current month:'
-  # no_event_str = 'No upcoming events found'
-  # puts event_str
-  # puts no_event_str if response.items.empty?
+  response = service.list_events(calendar_id,
+                                 max_results: 1000,
+                                 single_events: true,
+                                 order_by: 'startTime',
+                                 time_min: start_time,
+                                 time_max: end_time,
+                                 fields: 'items(summary,attendees)') # Request only summary and attendees fields
+  event_str = 'Events in the current month:'
+  no_event_str = 'No upcoming events found'
+  puts event_str
+  puts no_event_str if response.items.empty?
 
-  # events_summary = Hash.new { |hash, key| hash[key] = [] }
-  # puts "- events_summary"
-  # puts events_summary
+  events_summary = Hash.new { |hash, key| hash[key] = [] }
+  puts "- events_summary"
+  puts events_summary
 
-  # response.items.each do |event|
-  #   summary = event.summary
-  #   attendees = event.attendees || []
+  response.items.each do |event|
+    summary = event.summary
+    attendees = event.attendees || []
   
-  #   # Add each event summary as an object to the array under the summary key
-  #   events_summary[summary] << { count: 1, attendees: attendees.map { |attendee| attendee.email.to_s } }
-  # end
+    # Add each event summary as an object to the array under the summary key
+    events_summary[summary] << { count: 1, attendees: attendees.map { |attendee| attendee.email.to_s } }
+  end
   
 
-  # puts "🚀 ~ events_summary: #{events_summary}"
+  puts "🚀 ~ events_summary: #{events_summary}"
 
   month_name = Time.now.strftime("%B") # Get the full month name
   puts "\nSummary of events in #{month_name}:"
 
-
-  sample_events_summary = {
-    "Mystorage - Daily meeting" => 
-      {
-        :count => 10,
-        :attendees => Set.new(["thien.kieu@coderpush.com", "ruby@coderpush.com", "duy@coderpush.com"])
-      },
-    "Dux-soup - Daily Sync" => {
-      :count => 21,
-      :attendees => Set.new(["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"])
-    },
-    "🎙 Open Discussion: E-sports Tournament 2024" => {
-      :count => 1,
-      :attendees => Set.new(["hieu.pham@coderpush.com", "nhat@coderpush.com", "cong@coderpush.com", "du@coderpush.com", "vu@coderpush.com", "coral@coderpush.com", "vi@coderpush.com", "dieuhuyen@coderpush.com", "bsu@coderpush.com", "nhatanh@coderpush.com", "leo@coderpush.com", "hoangminh@coderpush.com", "quang@coderpush.com", "thinh@coderpush.com", "khanh@coderpush.com", "truong@coderpush.com", "son@coderpush.com", "trang@coderpush.com", "ruby@coderpush.com", "james@coderpush.com", "ha.nguyen@coderpush.com", "thanh@coderpush.com", "vinh.duong@coderpush.com", "hien@coderpush.com", "phong@coderpush.com", "nghia.huynh@coderpush.com", "john@coderpush.com", "sieu@coderpush.com", "huy.le@coderpush.com", "phi@coderpush.com", "thong.dang@coderpush.com", "nam@coderpush.com", "thuhien@coderpush.com", "diep@coderpush.com", "cuong@coderpush.com", "vanhung@coderpush.com", "anh@coderpush.com", "viet@coderpush.com", "chau@coderpush.com", "caochau@coderpush.com", "uyen@coderpush.com", "loan@coderpush.com", "quy.nguyen@coderpush.com", "kimlong@coderpush.com", "min@coderpush.com", "dao.mai@coderpush.com", "dat.nguyen@coderpush.com", "ha.pham@coderpush.com", "thientran@coderpush.com", "minhhung@coderpush.com", "thien.kieu@coderpush.com", "tron@coderpush.com", "vinh.tran@coderpush.com", "diem@coderpush.com", "huyen@coderpush.com", "harley@coderpush.com", "thien.huynh@coderpush.com", "kelly@coderpush.com", "hung.dang@coderpush.com", "oai@coderpush.com", "long@coderpush.com", "duy@coderpush.com", "ngan@coderpush.com", "nhi@coderpush.com", "tri.nguyen@coderpush.com", "long.truong@coderpush.com", "si@coderpush.com", "anne@coderpush.com", "hanna@coderpush.com", "hugh@coderpush.com", "thanh.le@coderpush.com"])
-    },
-    "Duy x Leo 1-1" => {
-      :count => 1,
-      :attendees => Set.new(["duy@coderpush.com", "leo@coderpush.com"])
-    },
-    "Elise x Leo 1-1" => {
-      :count => 1,
-      :attendees => Set.new(["elise@coderpush.com", "leo@coderpush.com"])
-    },
-    "1-1 Duy/ThienK" => 
-      {
-        :count => 1,
-        :attendees => Set.new(["duy@coderpush.com", "thien.kieu@coderpush.com"])
-      },
-    "1-1 JohnDoe/ThienK" => 
-    {
-      :count => 1,
-      :attendees => Set.new(["johndoe@coderpush.com", "thien.kieu@coderpush.com"])
-    },
-  }
+  sample_events_summary = {"Dux-soup - Daily Sync"=>[{:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "harley@coderpush.com"]}], "🧑‍💻🏊🚵🏃 Committee V3.0 "=>[{:count=>1, :attendees=>["hieu.pham@coderpush.com", "nhat@coderpush.com", "cong@coderpush.com", "du@coderpush.com", "coral@coderpush.com", "vi@coderpush.com", "dieuhuyen@coderpush.com", "bsu@coderpush.com", "nhatanh@coderpush.com", "leo@coderpush.com", "hoangminh@coderpush.com", "quang@coderpush.com", "thinh@coderpush.com", "khanh@coderpush.com", "truong@coderpush.com", "son@coderpush.com", "ruby@coderpush.com", "james@coderpush.com", "ha.nguyen@coderpush.com", "thanh@coderpush.com", "vinh.duong@coderpush.com", "hien@coderpush.com", "phong@coderpush.com", "nghia.huynh@coderpush.com", "john@coderpush.com", "sieu@coderpush.com", "huy.le@coderpush.com", "phi@coderpush.com", "thong.dang@coderpush.com", "nam@coderpush.com", "thuhien@coderpush.com", "diep@coderpush.com", "cuong@coderpush.com", "vanhung@coderpush.com", "anh@coderpush.com", "viet@coderpush.com", "chau@coderpush.com", "caochau@coderpush.com", "uyen@coderpush.com", "loan@coderpush.com", "quy.nguyen@coderpush.com", "kimlong@coderpush.com", "min@coderpush.com", "dao.mai@coderpush.com", "dat.nguyen@coderpush.com", "ha.pham@coderpush.com", "thientran@coderpush.com", "minhhung@coderpush.com", "thien.kieu@coderpush.com", "tron@coderpush.com", "vinh.tran@coderpush.com", "diem@coderpush.com", "huyen@coderpush.com", "harley@coderpush.com", "kelly@coderpush.com", "hung.dang@coderpush.com", "oai@coderpush.com", "long@coderpush.com", "duy@coderpush.com", "ngan@coderpush.com", "nhi@coderpush.com", "thien.huynh@coderpush.com", "trang@coderpush.com", "tri.nguyen@coderpush.com", "long.truong@coderpush.com", "si@coderpush.com", "hanna@coderpush.com", "thanh.le@coderpush.com", "hugh@coderpush.com", "maianh@coderpush.com"]}, {:count=>1, :attendees=>["hieu.pham@coderpush.com", "nhat@coderpush.com", "cong@coderpush.com", "du@coderpush.com", "coral@coderpush.com", "vi@coderpush.com", "dieuhuyen@coderpush.com", "bsu@coderpush.com", "nhatanh@coderpush.com", "leo@coderpush.com", "hoangminh@coderpush.com", "quang@coderpush.com", "thinh@coderpush.com", "khanh@coderpush.com", "truong@coderpush.com", "son@coderpush.com", "ruby@coderpush.com", "james@coderpush.com", "ha.nguyen@coderpush.com", "thanh@coderpush.com", "vinh.duong@coderpush.com", "hien@coderpush.com", "phong@coderpush.com", "nghia.huynh@coderpush.com", "john@coderpush.com", "sieu@coderpush.com", "huy.le@coderpush.com", "phi@coderpush.com", "thong.dang@coderpush.com", "nam@coderpush.com", "thuhien@coderpush.com", "diep@coderpush.com", "cuong@coderpush.com", "vanhung@coderpush.com", "anh@coderpush.com", "viet@coderpush.com", "chau@coderpush.com", "caochau@coderpush.com", "uyen@coderpush.com", "loan@coderpush.com", "quy.nguyen@coderpush.com", "kimlong@coderpush.com", "min@coderpush.com", "dao.mai@coderpush.com", "dat.nguyen@coderpush.com", "ha.pham@coderpush.com", "thientran@coderpush.com", "minhhung@coderpush.com", "thien.kieu@coderpush.com", "tron@coderpush.com", "vinh.tran@coderpush.com", "diem@coderpush.com", "huyen@coderpush.com", "harley@coderpush.com", "kelly@coderpush.com", "hung.dang@coderpush.com", "oai@coderpush.com", "long@coderpush.com", "duy@coderpush.com", "ngan@coderpush.com", "nhi@coderpush.com", "thien.huynh@coderpush.com", "trang@coderpush.com", "tri.nguyen@coderpush.com", "long.truong@coderpush.com", "si@coderpush.com", "hanna@coderpush.com", "thanh.le@coderpush.com", "hugh@coderpush.com", "maianh@coderpush.com"]}, {:count=>1, :attendees=>["hieu.pham@coderpush.com", "nhat@coderpush.com", "cong@coderpush.com", "du@coderpush.com", "coral@coderpush.com", "vi@coderpush.com", "dieuhuyen@coderpush.com", "bsu@coderpush.com", "nhatanh@coderpush.com", "leo@coderpush.com", "hoangminh@coderpush.com", "quang@coderpush.com", "thinh@coderpush.com", "khanh@coderpush.com", "truong@coderpush.com", "son@coderpush.com", "ruby@coderpush.com", "james@coderpush.com", "ha.nguyen@coderpush.com", "thanh@coderpush.com", "vinh.duong@coderpush.com", "hien@coderpush.com", "phong@coderpush.com", "nghia.huynh@coderpush.com", "john@coderpush.com", "sieu@coderpush.com", "huy.le@coderpush.com", "phi@coderpush.com", "thong.dang@coderpush.com", "nam@coderpush.com", "thuhien@coderpush.com", "diep@coderpush.com", "cuong@coderpush.com", "vanhung@coderpush.com", "anh@coderpush.com", "viet@coderpush.com", "chau@coderpush.com", "caochau@coderpush.com", "uyen@coderpush.com", "loan@coderpush.com", "quy.nguyen@coderpush.com", "kimlong@coderpush.com", "min@coderpush.com", "dao.mai@coderpush.com", "dat.nguyen@coderpush.com", "ha.pham@coderpush.com", "thientran@coderpush.com", "minhhung@coderpush.com", "thien.kieu@coderpush.com", "tron@coderpush.com", "vinh.tran@coderpush.com", "diem@coderpush.com", "huyen@coderpush.com", "harley@coderpush.com", "kelly@coderpush.com", "hung.dang@coderpush.com", "oai@coderpush.com", "long@coderpush.com", "duy@coderpush.com", "ngan@coderpush.com", "nhi@coderpush.com", "thien.huynh@coderpush.com", "trang@coderpush.com", "tri.nguyen@coderpush.com", "long.truong@coderpush.com", "si@coderpush.com", "hanna@coderpush.com", "thanh.le@coderpush.com", "hugh@coderpush.com", "maianh@coderpush.com"]}, {:count=>1, :attendees=>["hieu.pham@coderpush.com", "nhat@coderpush.com", "cong@coderpush.com", "du@coderpush.com", "coral@coderpush.com", "vi@coderpush.com", "dieuhuyen@coderpush.com", "bsu@coderpush.com", "nhatanh@coderpush.com", "leo@coderpush.com", "hoangminh@coderpush.com", "quang@coderpush.com", "thinh@coderpush.com", "khanh@coderpush.com", "truong@coderpush.com", "son@coderpush.com", "ruby@coderpush.com", "james@coderpush.com", "ha.nguyen@coderpush.com", "thanh@coderpush.com", "vinh.duong@coderpush.com", "hien@coderpush.com", "phong@coderpush.com", "nghia.huynh@coderpush.com", "john@coderpush.com", "sieu@coderpush.com", "huy.le@coderpush.com", "phi@coderpush.com", "thong.dang@coderpush.com", "nam@coderpush.com", "thuhien@coderpush.com", "diep@coderpush.com", "cuong@coderpush.com", "vanhung@coderpush.com", "anh@coderpush.com", "viet@coderpush.com", "chau@coderpush.com", "caochau@coderpush.com", "uyen@coderpush.com", "loan@coderpush.com", "quy.nguyen@coderpush.com", "kimlong@coderpush.com", "min@coderpush.com", "dao.mai@coderpush.com", "dat.nguyen@coderpush.com", "ha.pham@coderpush.com", "thientran@coderpush.com", "minhhung@coderpush.com", "thien.kieu@coderpush.com", "tron@coderpush.com", "vinh.tran@coderpush.com", "diem@coderpush.com", "huyen@coderpush.com", "harley@coderpush.com", "kelly@coderpush.com", "hung.dang@coderpush.com", "oai@coderpush.com", "long@coderpush.com", "duy@coderpush.com", "ngan@coderpush.com", "nhi@coderpush.com", "thien.huynh@coderpush.com", "trang@coderpush.com", "tri.nguyen@coderpush.com", "long.truong@coderpush.com", "si@coderpush.com", "hanna@coderpush.com", "thanh.le@coderpush.com", "hugh@coderpush.com", "maianh@coderpush.com"]}, {:count=>1, :attendees=>["hieu.pham@coderpush.com", "nhat@coderpush.com", "cong@coderpush.com", "du@coderpush.com", "coral@coderpush.com", "vi@coderpush.com", "dieuhuyen@coderpush.com", "bsu@coderpush.com", "nhatanh@coderpush.com", "leo@coderpush.com", "hoangminh@coderpush.com", "quang@coderpush.com", "thinh@coderpush.com", "khanh@coderpush.com", "truong@coderpush.com", "son@coderpush.com", "ruby@coderpush.com", "james@coderpush.com", "ha.nguyen@coderpush.com", "thanh@coderpush.com", "vinh.duong@coderpush.com", "hien@coderpush.com", "phong@coderpush.com", "nghia.huynh@coderpush.com", "john@coderpush.com", "sieu@coderpush.com", "huy.le@coderpush.com", "phi@coderpush.com", "thong.dang@coderpush.com", "nam@coderpush.com", "thuhien@coderpush.com", "diep@coderpush.com", "cuong@coderpush.com", "vanhung@coderpush.com", "anh@coderpush.com", "viet@coderpush.com", "chau@coderpush.com", "caochau@coderpush.com", "uyen@coderpush.com", "loan@coderpush.com", "quy.nguyen@coderpush.com", "kimlong@coderpush.com", "min@coderpush.com", "dao.mai@coderpush.com", "dat.nguyen@coderpush.com", "ha.pham@coderpush.com", "thientran@coderpush.com", "minhhung@coderpush.com", "thien.kieu@coderpush.com", "tron@coderpush.com", "vinh.tran@coderpush.com", "diem@coderpush.com", "huyen@coderpush.com", "harley@coderpush.com", "kelly@coderpush.com", "hung.dang@coderpush.com", "oai@coderpush.com", "long@coderpush.com", "duy@coderpush.com", "ngan@coderpush.com", "nhi@coderpush.com", "thien.huynh@coderpush.com", "trang@coderpush.com", "tri.nguyen@coderpush.com", "long.truong@coderpush.com", "si@coderpush.com", "hanna@coderpush.com", "thanh.le@coderpush.com", "hugh@coderpush.com", "maianh@coderpush.com"]}], "Uống thuốc"=>[{:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}, {:count=>1, :attendees=>[]}], "Dux-Soup / CoderPush weekly meeting"=>[{:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "will@dux-soup.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "will@dux-soup.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "will@dux-soup.com"]}, {:count=>1, :attendees=>["thien.kieu@coderpush.com", "duy@coderpush.com", "will@dux-soup.com"]}], "🎙 Tech Talks "=>[{:count=>1, :attendees=>["hieu.pham@coderpush.com", "nhat@coderpush.com", "cong@coderpush.com", "du@coderpush.com", "vu@coderpush.com", "coral@coderpush.com", "vi@coderpush.com", "dieuhuyen@coderpush.com", "bsu@coderpush.com", "nhatanh@coderpush.com", "leo@coderpush.com", "hoangminh@coderpush.com", "quang@coderpush.com", "thinh@coderpush.com", "khanh@coderpush.com", "truong@coderpush.com", "son@coderpush.com", "trang@coderpush.com", "ruby@coderpush.com", "james@coderpush.com", "ha.nguyen@coderpush.com", "thanh@coderpush.com", "vinh.duong@coderpush.com", "hien@coderpush.com", "phong@coderpush.com", "nghia.huynh@coderpush.com", "john@coderpush.com", "sieu@coderpush.com", "huy.le@coderpush.com", "phi@coderpush.com", "thong.dang@coderpush.com", "nam@coderpush.com", "thuhien@coderpush.com", "diep@coderpush.com", "cuong@coderpush.com", "vanhung@coderpush.com", "anh@coderpush.com", "viet@coderpush.com", "chau@coderpush.com", "caochau@coderpush.com", "uyen@coderpush.com", "loan@coderpush.com", "quy.nguyen@coderpush.com", "kimlong@coderpush.com", "min@coderpush.com", "dao.mai@coderpush.com", "dat.nguyen@coderpush.com", "ha.pham@coderpush.com", "thientran@coderpush.com", "minhhung@coderpush.com", "thien.kieu@coderpush.com", "tron@coderpush.com", "vinh.tran@coderpush.com", "diem@coderpush.com", "huyen@coderpush.com", "harley@coderpush.com", "thien.huynh@coderpush.com", "kelly@coderpush.com", "hung.dang@coderpush.com", "oai@coderpush.com", "long@coderpush.com", "duy@coderpush.com", "ngan@coderpush.com", "nhi@coderpush.com", "tri.nguyen@coderpush.com", "long.truong@coderpush.com", "si@coderpush.com", "anne@coderpush.com", "hanna@coderpush.com", "hugh@coderpush.com", "thanh.le@coderpush.com"]}, {:count=>1, :attendees=>["hieu.pham@coderpush.com", "nhat@coderpush.com", "cong@coderpush.com", "du@coderpush.com", "vu@coderpush.com", "coral@coderpush.com", "vi@coderpush.com", "dieuhuyen@coderpush.com", "bsu@coderpush.com", "nhatanh@coderpush.com", "leo@coderpush.com", "hoangminh@coderpush.com", "quang@coderpush.com", "thinh@coderpush.com", "khanh@coderpush.com", "truong@coderpush.com", "son@coderpush.com", "trang@coderpush.com", "ruby@coderpush.com", "james@coderpush.com", "ha.nguyen@coderpush.com", "thanh@coderpush.com", "vinh.duong@coderpush.com", "hien@coderpush.com", "phong@coderpush.com", "nghia.huynh@coderpush.com", "john@coderpush.com", "sieu@coderpush.com", "huy.le@coderpush.com", "phi@coderpush.com", "thong.dang@coderpush.com", "nam@coderpush.com", "thuhien@coderpush.com", "diep@coderpush.com", "cuong@coderpush.com", "vanhung@coderpush.com", "anh@coderpush.com", "viet@coderpush.com", "chau@coderpush.com", "caochau@coderpush.com", "uyen@coderpush.com", "loan@coderpush.com", "quy.nguyen@coderpush.com", "kimlong@coderpush.com", "min@coderpush.com", "dao.mai@coderpush.com", "dat.nguyen@coderpush.com", "ha.pham@coderpush.com", "thientran@coderpush.com", "minhhung@coderpush.com", "thien.kieu@coderpush.com", "tron@coderpush.com", "vinh.tran@coderpush.com", "diem@coderpush.com", "huyen@coderpush.com", "harley@coderpush.com", "thien.huynh@coderpush.com", "kelly@coderpush.com", "hung.dang@coderpush.com", "oai@coderpush.com", "long@coderpush.com", "duy@coderpush.com", "ngan@coderpush.com", "nhi@coderpush.com", "tri.nguyen@coderpush.com", "long.truong@coderpush.com", "si@coderpush.com", "anne@coderpush.com", "hanna@coderpush.com", "hugh@coderpush.com", "thanh.le@coderpush.com"]}], "Duy x Leo 1-1"=>[{:count=>1, :attendees=>["duy@coderpush.com", "leo@coderpush.com"]}]}
 
 
   
-  output_str = format_events_summary(sample_events_summary)
-  # puts "- output_str"
-  # puts output_str
-  # puts "----- output_str"
-  # puts format_email_body(output_str)
+  # output_str = format_events_summary(sample_events_summary)
+  output_str = format_events_summary(events_summary)
+  # output_str = format_events_summary(sample_events_summary)
+
   # subject = "Summary of 1-1 meetings"
   # body = output_str
   # send_email(subject, body)
@@ -207,11 +171,9 @@ def handle_events(service)
 
 
 
-  def convert_to_table_summary(filtered_events_summary)
+  def convert_to_table_summary(filtered_events_summary_param)
     # Create a header for the table
-    puts "filtered_events_summary"
-    puts filtered_events_summary
-    # all_people_mails = ["amy@coderpush.com", "duy@coderpush.com", "alex@coderpush.com", "thien.kieu@coderpush.com", "leo@coderpush.com", "elise@coderpush.com", "sam@coderpush.com", "johndoe@coderpush.com", "brook@coderpush.com"]
+    puts filtered_events_summary_param
     coderpusher_emails = [
       "minhhung@coderpush.com",
       "min@coderpush.com",
@@ -278,20 +240,22 @@ def handle_events(service)
 
     manager_email = ["thien.kieu@coderpush.com", "leo@coderpush.com"]
 
-
     events_with_managers_participants = []
+
+    filtered_events_summary = filtered_events_summary_param
 
     # Iterate through the events and their attendees
     filtered_events_summary.each do |event_name, event_data|
-      # Select only the manager emails from the attendees of the event
-      managers = event_data[:attendees].select { |email| manager_email.include?(email) }
+      managers = event_data.first[:attendees].select { |email| manager_email.include?(email) }
+      # managers = event_data[:attendees].select { |email| manager_email.include?(email) }
+      puts "Managers: #{managers}"
       # Get the list of participants by removing manager emails from the attendees
-      participants = event_data[:attendees].reject { |email| manager_email.include?(email) }
+      participants = event_data.first[:attendees].reject { |email| manager_email.include?(email) }
       
-      # Create an object containing manager and participants for the event
+      # # Create an object containing manager and participants for the event
       event_object = { "manager" => managers.join(", "), "participants" => participants.to_a }
       
-      # Add the event object to the array
+      # # Add the event object to the array
       events_with_managers_participants << event_object
     end
 
@@ -363,52 +327,47 @@ def handle_events(service)
   end
 
  
-  def convert_to_table(array, max_width)
-    # Function to pad a string to a given length
-    pad_string = ->(str, length) { str.ljust(length) }
-  
-    # Calculate max content length for each column
-    max_lengths = array.reduce({"Manager" => 0, "Scheduled" => 0, "Unscheduled" => 0}) do |max_lengths, item|
-      max_lengths["Manager"] = [max_lengths["Manager"], item["manager"].length].max
-      max_lengths["Scheduled"] = [max_lengths["Scheduled"], item["scheduled"].join(", ").length].max
-      max_lengths["Unscheduled"] = [max_lengths["Unscheduled"], item["unscheduled"].join(", ").length].max
-      max_lengths
-    end
-  
-    # Adjust column widths based on max lengths and max table width
-    total_width = max_lengths.values.sum + 10  # Add padding and separator widths
-    width_ratio = max_width.to_f / total_width
-    column_widths = max_lengths.transform_values { |length| (length * width_ratio).to_i }
-  
-    # Generate table header
-    header = "| #{pad_string.call('Manager', column_widths["Manager"])} | #{pad_string.call('Scheduled', column_widths["Scheduled"])} | #{pad_string.call('Unscheduled', column_widths["Unscheduled"])} |"
-  
-    # Generate separator line
-    separator = "+-#{'-' * column_widths["Manager"]}-+-#{'-' * column_widths["Scheduled"]}-+-#{'-' * column_widths["Unscheduled"]}-+"
-  
-    # Generate table rows
-    rows = array.map do |item|
-      "| #{pad_string.call(item["manager"], column_widths["Manager"])} | #{pad_string.call(item["scheduled"].join(", "), column_widths["Scheduled"])} | #{pad_string.call(item["unscheduled"].join(", "), column_widths["Unscheduled"])} |"
-    end
-  
-    # Construct the final table string
-    table_string = [separator, header, separator, rows.join("\n"), separator].join("\n")
-  
-    table_string
+def convert_to_table(array, max_width)
+  # Function to pad a string to a given length
+  pad_string = ->(str, length) { str.ljust(length) }
+
+  # Calculate max content length for each column
+  max_lengths = array.reduce({"Manager" => 0, "Scheduled" => 0, "Unscheduled" => 0}) do |max_lengths, item|
+    max_lengths["Manager"] = [max_lengths["Manager"], item["manager"].length].max
+    max_lengths["Scheduled"] = [max_lengths["Scheduled"], item["scheduled"].join(", ").length].max
+    max_lengths["Unscheduled"] = [max_lengths["Unscheduled"], item["unscheduled"].join(", ").length].max
+    max_lengths
   end
 
+  # Adjust column widths based on max lengths and max table width
+  total_width = max_lengths.values.sum + 10  # Add padding and separator widths
+  width_ratio = max_width.to_f / total_width
+  column_widths = max_lengths.transform_values { |length| (length * width_ratio).to_i }
 
+  # Generate table header
+  header = "| #{pad_string.call('Manager', column_widths["Manager"])} | #{pad_string.call('Scheduled', column_widths["Scheduled"])} | #{pad_string.call('Unscheduled', column_widths["Unscheduled"])} |"
 
+  # Generate separator line
+  separator = "+-#{'-' * column_widths["Manager"]}-+-#{'-' * column_widths["Scheduled"]}-+-#{'-' * column_widths["Unscheduled"]}-+"
 
-  def format_events_summary(events_summary)
-    puts "events_summary"
-    puts events_summary
-    filtered_events_summary = events_summary.select { |event_name, info| event_name.include?("1-1") }
-    puts "filtered_events_summary"
-    puts filtered_events_summary
-
-    return convert_to_table_summary(filtered_events_summary)
+  # Generate table rows
+  rows = array.map do |item|
+    "| #{pad_string.call(item["manager"], column_widths["Manager"])} | #{pad_string.call(item["scheduled"].join(", "), column_widths["Scheduled"])} | #{pad_string.call(item["unscheduled"].join(", "), column_widths["Unscheduled"])} |"
   end
+
+  # Construct the final table string
+  table_string = [separator, header, separator, rows.join("\n"), separator].join("\n")
+
+  table_string
+end
+
+
+
+def format_events_summary(events_summary)
+  filtered_events_summary = events_summary.select { |event_name, info| event_name.include?("1-1") }
+  
+  return convert_to_table_summary(filtered_events_summary.to_a)
+end
 
 
 
@@ -421,9 +380,9 @@ def handle_events(service)
 # end
 
 begin
-  # service = authorize_and_load_client
-  # handle_events(service)
-  handle_events(nil)
+  service = authorize_and_load_client
+  handle_events(service)
+  # handle_events(nil)
 rescue Google::Apis::ClientError => e
   puts "Error: #{e}"
 end
@@ -448,3 +407,4 @@ end
 # write a function name "convert_to_table_summary", requirement:
 # - output an object with 3 properties:  manager, scheduled, unscheduled
 # "manager" is filter from "attendees" of an event, and this email must appear in "manager_email"
+
