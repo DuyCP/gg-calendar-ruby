@@ -4,10 +4,19 @@ require 'google/apis/calendar_v3'
 require 'fileutils'
 require 'date'
 require 'active_support/all'
-require 'set'
 require 'mail'
 require 'set'
 require 'text-table'
+require 'json'
+
+# service_account_id = "duyserviceaccountcalendar"
+# service_account_mail = "duyserviceaccountcalendar@gg-calendar-ruby.iam.gserviceaccount.com"
+
+# Replace these variables with your service account credentials and the email address
+SERVICE_ACCOUNT_EMAIL = 'duyserviceaccountcalendar@gg-calendar-ruby.iam.gserviceaccount.com'
+SERVICE_ACCOUNT_FILE = './gg-calendar-ruby-service-account.json'
+# CALENDAR_ID = 'primary' # Use 'primary' for the primary calendar
+CALENDAR_ID = 'duy@coderpush.com' # Use 'primary' for the primary calendar
 
 
 def merge_sets(*sets)
@@ -19,10 +28,6 @@ def merge_sets(*sets)
 end
 
 # Set up email delivery method
-
-CLIENT_SECRETS_PATH = './client_secrets.json'
-CREDENTIALS_PATH = './token.yaml'
-
 $from_email = 'txd22081999@gmail.com'
 $from_email_password = 'kxtu mipe owot gmxb'
 $to_email = 'duy@coderpush.com'
@@ -52,19 +57,35 @@ def send_email(subject, body)
 end
 
 
-
 def initialize_calendar_service
-  scope = Google::Apis::CalendarV3::AUTH_CALENDAR
-  client_id = Google::Auth::ClientId.from_file(CLIENT_SECRETS_PATH)
-  token_store = Google::Auth::Stores::FileTokenStore.new(file: CREDENTIALS_PATH)
-  authorizer = Google::Auth::UserAuthorizer.new(client_id, scope, token_store)
-  credentials = authorizer.get_credentials('user_id')
+  calendar = Google::Apis::CalendarV3::CalendarService.new
+  calendar.authorization = Google::Auth::ServiceAccountCredentials.make_creds(
+    json_key_io: File.open(SERVICE_ACCOUNT_FILE),
+    scope: Google::Apis::CalendarV3::AUTH_CALENDAR_READONLY
+  )
+  
+  # Get all events for the specified calendar
+  # Attempt to fetch events from the Google Calendar
+  events = calendar.list_events(CALENDAR_ID)
 
-  service = Google::Apis::CalendarV3::CalendarService.new
-  service.client_options.application_name = 'Google Calendar API Ruby'
-  service.authorization = credentials if credentials
+  # Print the events from 2023 and beyond
+  if events.items.empty?
+      puts "No events found."
+  else
+      puts "Events for calendar #{CALENDAR_ID} from 2023 onwards:"
+      events.items.each do |event|
+      # Check if the event's start date is from 2023 or later
+      if event.start && event.start.date_time && event.start.date_time >= Date.new(2023, 1, 1)
+          puts "- #{event.summary} at #{event.start.date_time}"
+      end
+      end
+  end
 
-  service
+  rescue Google::Apis::AuthorizationError => e
+  # Handle authorization errors
+  puts "Authorization failed: #{e.message}"
+
+  return events
 end
 
 def authorize_and_load_client
@@ -77,36 +98,6 @@ def authorize_and_load_client
   end
 
   service
-end
-
-def authorize
-  client_id = Google::Auth::ClientId.from_file(CLIENT_SECRETS_PATH)
-  scope = Google::Apis::CalendarV3::AUTH_CALENDAR
-  user_id = 'default'
-  token_store = Google::Auth::Stores::FileTokenStore.new(file: CREDENTIALS_PATH)
-
-  authorizer = Google::Auth::UserAuthorizer.new(client_id, scope, token_store)
-
-  credentials = authorizer.get_credentials(user_id)
-
-  if credentials.nil?
-    url = authorizer.get_authorization_url(base_url: 'urn:ietf:wg:oauth:2.0:oob')
-    puts "Open the following URL in your browser to authorize:\n#{url}"
-    puts 'Enter the authorization code:'
-    code = gets.chomp
-    credentials = authorizer.get_and_store_credentials_from_code(
-      user_id: user_id, code: code, base_url: 'urn:ietf:wg:oauth:2.0:oob'
-    )
-  end
-
-  credentials
-end
-
-def save_credentials(credentials)
-  FileUtils.mkdir_p(File.dirname(CREDENTIALS_PATH))
-  File.open(CREDENTIALS_PATH, 'w') do |file|
-    file.write(credentials.to_yaml)
-  end
 end
 
 def format_email_body(paragraph)
@@ -149,8 +140,6 @@ def handle_events(service)
     events_summary[summary] << { count: 1, attendees: attendees.map { |attendee| attendee.email.to_s } }
   end
   
-
-  puts "🚀 ~ events_summary: #{events_summary}"
 
   month_name = Time.now.strftime("%B") # Get the full month name
   puts "\nSummary of events in #{month_name}:"
@@ -364,47 +353,28 @@ end
 
 
 def format_events_summary(events_summary)
-  filtered_events_summary = events_summary.select { |event_name, info| event_name.include?("1-1") }
+  filtered_events_summary = events_summary.select do |event_name, info|
+    event_name && event_name.include?("1-1")
+  end
   
   return convert_to_table_summary(filtered_events_summary.to_a)
 end
 
 
-
-
-
-# begin
-#   subject = "Summary of all meetings this month"
-#   body = "New body"
-#   send_email(from_email, to_email, subject, body)
-# end
-
 begin
-  service = authorize_and_load_client
-  handle_events(service)
-  # handle_events(nil)
-rescue Google::Apis::ClientError => e
-  puts "Error: #{e}"
+  events = initialize_calendar_service()
+  events_summary = Hash.new { |hash, key| hash[key] = [] }
+
+  events.each do |event|
+    summary = event.summary
+    attendees = event.attendees || []
+  
+    # Add each event summary as an object to the array under the summary key
+    events_summary[summary] << { count: 1, attendees: attendees.map { |attendee| attendee.email.to_s } }
+  end
+
+  output_str = format_events_summary(events_summary)
 end
 
 
-# Authorization code
-# Please copy this code, switch to your application and paste it there
-# 4/1AfJohXkdi6UscQf8r8fxGl47dPYZ_UGOSCpTXTF1jL5Oyj1bAccJVbI3k0U
-
-# gem install google-auth
-# gem install google-api-client
-# gem install mail
-
-
-## johndoe@gmail.com  |  1-1 meeting | 4
-
-## Proton mail:
-## cp_mailbot@proton.me
-## 12345678
-
-
-# write a function name "convert_to_table_summary", requirement:
-# - output an object with 3 properties:  manager, scheduled, unscheduled
-# "manager" is filter from "attendees" of an event, and this email must appear in "manager_email"
 
